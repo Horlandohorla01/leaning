@@ -34,7 +34,7 @@ jobs:
 
   deploy_to_dev:
     runs-on: self-hosted
-    needs: push_image_to_registry
+    #needs: push_image_to_registry
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -51,7 +51,7 @@ jobs:
 
       - name: Clone GitOps Repository
         run: |
-          git remote set-url origin http://${{ secrets.PIPELINE_TOKEN }}@github.com/Horlandohorla01/leaning.git
+          git remote set-url origin http://${{ secrets.PIPELINE_TOKEN }}@github.com/Horlandohorla01/iac.git
           git clone http://pipeline:${{ secrets.PIPELINE_TOKEN }}@localhost/root/gitops.git     
 
       - name: Commit and Push Changes
