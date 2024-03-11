@@ -13,50 +13,37 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          if [ ${{ github.ref }} == 'refs/heads/main' ]; then
-            echo "Generated image tag is $IMAGE_TAG"
-            docker build -t horlandohorla1992/vue:webapp-${{ github.sha }} .
-          fi
+          echo "Generated image tag is ${{ github.sha }}" && ls
+          docker build -t horlandohorla1992/vue:webapp-${{ github.sha }} -f ./vue-test-app/Dockerfile ./vue-test-app
 
-  push_docker_image:
+  push_image_to_registry:
     runs-on: self-hosted
     needs: build_docker_image
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - name: Login to Docker Registry
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-      - name: Login to Docker Hub
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Push Docker Image
+      - name: Push Docker Image to Registry
         run: docker push horlandohorla1992/vue:webapp-${{ github.sha }}
-        # - docker rmi horlandohorla1992/vue:webapp-${{ github.sha }} 
 
   deploy_to_dev:
     runs-on: self-hosted
-    needs: push_docker_image
+    needs: push_image_to_registry
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-
-      - name: Update K8s Manifest Files
-        run: |
-          sed -i "s/vue:webapp-.*/vue:webapp-${{ github.sha }}/g" dev/deployment.yaml
-          cat ./dev/deployment.yaml
 
       - name: Configure Git
         run: |
           git config --global user.email "pipeline_user@thebulb.com"
           git config --global user.name "pipeline"
-
-      - name: Clone GitOps Repository
+          
+      - name: Update Kubernetes Manifests
         run: |
-          git remote set-url origin http://${{ secrets.PIPELINE_TOKEN }}@github.com/Horlandohorla01/iac.git
-          git clone http://pipeline:${{ secrets.PIPELINE_TOKEN }}@localhost/root/gitops.git     
-
-      - name: Commit and Push Changes
-        run: |
-          cd gitops
-          git add dev/deployment.yaml
-          git commit -m "Updated vue test app Dev env k8s manifest files"
-          git push
+          git clone https://${{ secrets.USERNAME_TOKEN}}:${{ secrets.PIPELINE_TOKEN }}@github.com/obike007/jobs.git
+          cd jobs 
+          sed -i "s/vue:webapp-.*/vue:webapp-${{ github.sha }}/g" deployment.yaml
+          cat deployment.yaml
+          git add deployment.yaml
+          git commit -m "Update Vue.js test app Dev env k8s manifest file"
+          git push origin main
