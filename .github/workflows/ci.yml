@@ -30,14 +30,6 @@ jobs:
     runs-on: self-hosted
     needs: push_image_to_registry
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Configure Git
-        run: |
-          git config --global user.email "pipeline_user@thebulb.com"
-          git config --global user.name "pipeline"
-          
       - name: Update Kubernetes Manifests
         run: |
           git clone https://${{ secrets.USERNAME_TOKEN}}:${{ secrets.PIPELINE_TOKEN }}@github.com/Horlandohorla01/jobs.git
@@ -46,4 +38,4 @@ jobs:
           cat deployment.yaml
           git add deployment.yaml
           git commit -m "Update Vue.js test app Dev env k8s manifest file"
-          git push origin main
+          git push origin main
