@@ -15,7 +15,7 @@ jobs:
         run: |
           if [ ${{ github.ref }} == 'refs/heads/main' ]; then
             echo "Generated image tag is $IMAGE_TAG"
-            docker build -t horlandohorla1992/vue:webapp-${{ github.sha }} .
+            docker build -t Horlandohorla01/vue:webapp-${{ github.sha }} .
           fi
 
   push_docker_image:
@@ -29,8 +29,8 @@ jobs:
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push Docker Image
-        run: docker push horlandohorla1992/vue:webapp-${{ github.sha }}
-        # - docker rmi horlandohorla1992/vue:webapp-${{ github.sha }}
+        run: docker push Horlandohorla01/vue:webapp-${{ github.sha }}
+        # - docker rmi Horlandohorla01/vue:webapp-${{ github.sha }}
 
   deploy_to_dev:
     runs-on: self-hosted
