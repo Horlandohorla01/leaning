@@ -46,4 +46,4 @@ jobs:
           cat deployment.yaml
           git add deployment.yaml
           git commit -m "Update Vue.js test app Dev env k8s manifest file"
-          git push origin master
+          git push origin main
